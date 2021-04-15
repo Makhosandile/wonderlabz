@@ -6,19 +6,15 @@ LABEL description="custom Docker image that runs any web server, \
 
 
 # Install dependencies
-# COPY ./requirements.txt /requirements.txt
-RUN apt-get update -y 
-RUN apt-get install -y php7.2 
-RUN apt-get install -y php7.2-curl php7.2-gd php7.2-json php7.2-mbstring \
-    && apt clean
-# RUN apk del .tmp-build-deps
+RUN apt-get update && \
+    apt install -y php7.2 -y && apt-get install nginx -y
+
+RUN  service nginx restart
 
 # Setup directory structure
-RUN mkdir /app
-WORKDIR /app
-COPY ./app/ /app
+COPY ./default /etc/nginx/sites-available/default
+COPY ./phpinfo.php /var/www/html/info.php
 
-RUN a2ensite playsafe.conf
-RUN apachectl -t
+RUN service nginx start && service php7.2-fpm start
+
 EXPOSE 80
-CMD /usr/sbin/apache2ctl -D FOREGROUND
